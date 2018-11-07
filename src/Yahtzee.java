@@ -3,7 +3,6 @@ import java.util.Scanner;
 public class Yahtzee {
         public static void main(String[] args){
 
-
                 System.out.println("Welcome to Yahtzee!\n");
 
                 // Ask for number of players and their names

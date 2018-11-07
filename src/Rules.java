@@ -44,7 +44,7 @@ public class Rules {
     // Now were setting the score for chosen category and making it there score which is sumDice that holds the score
     // We check that category off by turning it true so it is not re usable
 
-    public boolean checkCategoryInput(Die[] dice, int chose) {
+    public boolean checkCategoryInput(Die [] dice, int chose) {
         if (!checkCategory(chose)) {
 
             switch (chose) {
@@ -58,81 +58,71 @@ public class Rules {
                     if (checkUpper(dice, chose)) {
                         categoryScore[chose - 1] = sumDice(dice, chose);
                         categoryCheck[chose - 1] = true;
-                    } else {
+                    }
+                    else{
                         categoryScore[chose - 1] = 0;
                         categoryCheck[chose - 1] = true;
                     }
-                    //System.out.println(categoryCheck[chose - 1]);
                     return categoryCheck[chose - 1];
 
                 //case 7 is ThreeOfAKind
                 case (7):
-                    //test print lines were for testing.
-                    /*System.out.println("Test 7");*/
-                    System.out.println(checkMatch(dice, 3));
-                    return checkMatch(dice, 3);
+                    if (checkLowerSector[1] == true) {
+                        categoryScore[chose - 1] =0; //0 is a temporary value to get rid of error of there being no
+                        // value before the ;.
+                        categoryCheck[chose - 1] = true;
+                        return checkMatch(dice, 3);
+                    }
+                    return categoryCheck[chose - 1];
 
                 //case 8 is FourOfAKind
                 case (8):
-                    //test print lines were for testing.
-                    /* System.out.println("Test 8");*/
-                    System.out.println(checkMatch(dice, 4));
-                    return checkMatch(dice, 4);
+                    if (checkLowerSector[2] = true) {
+                        categoryScore[chose - 1] =0; //0 is a temporary value to get rid of error of there being no
+                        // value before the ;.
+                        categoryCheck[chose - 1] = true;
+                        return checkMatch(dice, 4);
 
-                //case 9 is SmallStraight
+                    }
+
+                    //case 9 is SmallStraight
                 case (9):
-                    //test print lines were for testing.
-                    System.out.println("Test 9");
+
                     return true;
 
                 //case 10 is LargeStraight
                 case (10):
-                    //test print lines were for testing.
-                    System.out.println("Test 10");
-                    return true;
+                    if (inDice(
+                            scoreStraight(
+                                    false,inDice(dice,))))
+                        return true;
 
-                //case 11 is FullHouse
+                    //case 11 is FullHouse
                 case (11):
                     //test print lines were for testing.
                     /* System.out.println("Test 11");*/
                     if (checkMatch(dice, 3) &&
                             checkMatch(dice, 2)) {
-                        System.out.println("this works.");
                         return true;
                     }
-                    //not sure if i need the !checkMatch(5)
                     break;
 
                 //case 12 is Yahtzee
                 case (12):
-                    //test print lines were for testing.
-                    /* System.out.println("Test 12");*/
-                    System.out.println(checkMatch(dice, 5));
-                    return checkMatch(dice, 5);
+                    if (checkLowerSector[3] = true) {
+                        return checkMatch(dice, 5);
+                    }
 
-                //case 13 is Chance
+                    //case 13 is Chance
                 case (13):
                     sumDice(dice, chose);
-                    System.out.println(sumDice(dice, chose));
                     return true;
                 //test print lines were for testing.
-                /*  System.out.println("Test 13"); */
 
                 default:
                     System.out.println("Invalid number or faulty code.");
                     break;
             }
-//            if (chose < 7 && chose > 0) {
-//                if (checkUpper(player.getDice(), chose)) {
-//                    categoryScore[chose - 1] = sumDice(player.getDice(), chose);
-//                    categoryCheck[chose - 1] = true;
-//                    return true;
-//                }
-//            } else {
-//
-//                //todo lowersection
-//                return true;
-//            }
 
         } else {
             return false;
@@ -182,7 +172,7 @@ public class Rules {
                         for (int b = 0; b < dice.length; b++) {
                             if (dice[i] == dice[a] &&
                                     dice[i] == dice[b] &&
-                                    dice[a] == dice[b]) ;
+                                    dice[a] == dice[b]);
                             checkLowerSector[1] = true;
                             return true;
                         }
@@ -210,7 +200,6 @@ public class Rules {
 
                 }
             case 5:
-
                 for (int i = 0; i < 5; i++) { //5 of kind
                     for (int a = 0; a < 5; a++) {
                         for (int b = 0; b < 5; b++) {
@@ -237,33 +226,6 @@ public class Rules {
         return false;
     }
 
-        /*
-        for (Die mFaceValue: dice) {
-            if (mFaceValue.getFaceValue() == value) {
-                return true;
-            }}
-        return false;
-    }*/
-
-  /*  private boolean presetCheckCategoryLower(Die[] dice, int value) {
-        for (int i=0; i <= 6; i++) {
-
-            boolean[] checkingLowerSection = new boolean[7];
-            int[] matchLowerSection = new int[7];
-
-            for (Die mFaceValue: dice) {
-                if (mFaceValue.getFaceValue() ==)
-                    value = matchLowerSection[i];
-
-            if (checkingLowerSection[i] == true) {
-
-                checkingLowerSection[i] =
-                }
-            }
-            }
-
-        } */
-
     // Just to clarify if the category is available for use, if false it is
     // the return value may look switched but default was set to check as long as its default it can be used.
     public boolean checkCategory(int pValue) {
@@ -271,12 +233,12 @@ public class Rules {
         if (pValue < 1 || pValue > 13) {
             return false;
         } else {
-            return categoryCheck[pValue - 1];
+            return categoryCheck[pValue-1];
         }
 
     }
 
-    public int sumDice(Die[] dice) {
+    public int sumDice(Die[] dice){
         int subTotal = 0;
 
         // facevalue is getting the dice now
@@ -287,67 +249,64 @@ public class Rules {
         return subTotal;
     }
 
-    public int sumDice(Die[] dice, int value) {
+    public int sumDice(Die[] dice, int value){
 
         // The subtotal will be 0, until returned with the new faceValue
         // We want to grab all dice and check them as well, not only score them
         int subTotal = 0;
 
         // facevalue is getting the dice now
-        for (Die die : dice) {
+        for(Die die: dice){
             int facevalue = die.getFaceValue();
 
             // If facevalue equals to the value then subtotal will be returnable as long as there is a matched int
-            if (facevalue == value) {
+            if(facevalue == value){
 
                 // subTotal will be greater or equals to faceValue then
                 subTotal += facevalue;
-            }
+            }}return subTotal;}
 
-            // Methods for straight scoring only
+    // Methods for straight scoring only
 
-            private static int scoreStraight ( boolean large, Die[] dice){
-                int score = 0;
-                boolean scored = false;
-                if (large) { // Large straight
-                    for (int ofs = 0; ofs < 2; ofs++) { // Large straights have two possible sets of integers to look for
-                        scored = true;
-                        for (int i = 1 + ofs; i < 6 + ofs; i++) { // Iterate to all 5 dice
-                            if (!inDice(dice, i)) { // Check for the existence of iterated numbers
-                                scored = false;
-                            }
-                        }
-                    }
-                    if (scored) {
-                        return 40;
-                    }
-                } else { // Small straight
-                    for (int ofs = 0; ofs < 3; ofs++) { // Small straights have three possible sets of integers to look for
-                        scored = true;
-                        for (int i = 1 + ofs; i < 5 + ofs; i++) { // Iterate to four dice
-                            if (!inDice(dice, i)) { // Check for the existence of iterated numbers
-                                scored = false;
-                            }
-                        }
-                    }
-                    if (scored) {
-                        return 30;
+    private static int scoreStraight(boolean large, Die[] dice){
+        int score = 0;
+        boolean scored = false;
+        if(large){ // Large straight
+            for(int ofs = 0;ofs < 2; ofs++) { // Large straights have two possible sets of integers to look for
+                scored = true;
+                for (int i = 1+ofs; i < 6+ofs; i++) { // Iterate to all 5 dice
+                    if (!inDice(dice, i)) { // Check for the existence of iterated numbers
+                        scored = false;
                     }
                 }
-                return 0;
             }
-
-            // Check for the existence of a certain faceValue in the dice array
-            private static boolean inDice (Die[] dice, int query){
-                for (int i = 0; i < dice.length; i++) {
-                    if (dice[i].getFaceValue() == query) {
-                        inDice = true;
+            if(scored){return 40;}
+        }
+        else{ // Small straight
+            for(int ofs = 0;ofs < 3; ofs++) { // Small straights have three possible sets of integers to look for
+                scored = true;
+                for (int i = 1+ofs; i < 5+ofs; i++) { // Iterate to four dice
+                    if (!inDice(dice, i)) { // Check for the existence of iterated numbers
+                        scored = false;
                     }
-
                 }
-                inDice = false;
+            }
+            if(scored){
+                return 30;
+            }
+        }
+        return 0;
+    }
+
+    // Check for the existence of a certain faceValue in the dice array
+    private static boolean inDice(Die[] dice, int query){
+        for(int i=0;i<dice.length;i++){
+            if(dice[i].getFaceValue()==query){
+                return true;
             }
 
         }
+        return false;
     }
+
 }
