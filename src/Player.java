@@ -54,7 +54,7 @@ class Player {
             boolean answeredCorrectly = false; //initializes answeredCorrectly to false. this is used to ask the player
             // if they would like to re-roll, but it will keep them here unless they answer yes or no.
 
-            boolean answeredCorrectly = false; //initializes answeredCorrectly to false. this is used to ask the player
+          //  boolean answeredCorrectly = false; //initializes answeredCorrectly to false. this is used to ask the player
             // if they would like to re-roll, but it will keep them here unless they answer yes or no.
 
             if (rollNumber < 2) {
