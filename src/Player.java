@@ -2,83 +2,57 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.Arrays;
 
-public class Player {
+class Player {
 
     //initializes variables
     private String name;
     private int score;
     private Die[] dice;
-
     private Rules rules;
-    //   private boolean diceHeld;
-    //   private int finalScore;
-    Scanner chose = new Scanner(System.in);
+    private Scanner sc = new Scanner(System.in); // Scanner used for everything
+
 
     //initializes constructors, getters, setters, and the array that holds the dice.
-    public Player(String name) {
+    Player(String name) {
         this.name = name;
         dice = new Die[5];
         for (int i = 0; i < dice.length; i++) {
             dice[i] = new Die();
-
-            //need to have each Player Object hold it's own score so that when all 13 rounds are over for each player,
-            // a winner can be calculated and declared.
         }
-        rules = new Rules(this);
+        rules = new Rules();
     }
 
-    public Die[] getDice() {
-        return dice;
-    }
-
-    public int getScore() {
+    int getScore() {
         return score;
     }
 
-    private void setScore(int score) {
-        this.score = score;
-    }
-
-    public String getName() {
+    String getName() {
         return this.name;
     }
 
-    //method takeTurn that will contain all of the aspects of a player's turn.
-    public void takeTurn() {
-
-        Scanner reRoll = new Scanner(System.in); //scanner used to ask the player if they want to re-roll the dice
-        // after an initial or previous roll on their current turn.
-        Scanner chose1 = new Scanner(System.in);
-        Scanner chose2 = new Scanner(System.in);
+    void takeTurn() {
 
         boolean[] heldDie = new boolean[5];
-        Arrays.fill(heldDie, false);
-
         int rollNumber = 0; //initializes a variable i that keeps track of the number of the times the dice were rolled.
 
-        String playersTurnPhrase = "It is now player " + getName() + "'s turn.";
-        System.out.println(playersTurnPhrase); //returns the name of the player who's
-        // turn it is
-        for (int i = 0; i < playersTurnPhrase.length(); i++) {
-            System.out.print("_");
 
-        }
-        System.out.println();
+        String playersTurnPhrase = getName() + "'s turn.";
+        System.out.println(playersTurnPhrase); //returns the name of the player who's turn it is
+        for (int i = 0; i < playersTurnPhrase.length(); i++) {System.out.print("‾");}
+        printScoreCard();
 
         while (rollNumber <= 2) {
 
             for (int d = 0; d < dice.length; d++) {
-                if (!heldDie[d]) {
-                    dice[d].rollDie();
-                } else {
-                    continue;
-                }
+                if (!heldDie[d]) {dice[d].rollDie();}
             }
 
-            System.out.println("\n" + getName() + " rolled: ");
-            // printDice(dice); (Temporarily disabled for incompatibility issues)
-            printDice2(dice); // Temporary fix
+            System.out.println("\n"+getName() + " rolled: ");
+            printDice(dice);
             System.out.println();
+
+            boolean answeredCorrectly = false; //initializes answeredCorrectly to false. this is used to ask the player
+            // if they would like to re-roll, but it will keep them here unless they answer yes or no.
 
             boolean answeredCorrectly = false; //initializes answeredCorrectly to false. this is used to ask the player
             // if they would like to re-roll, but it will keep them here unless they answer yes or no.
@@ -86,159 +60,63 @@ public class Player {
             if (rollNumber < 2) {
                 do {
                     System.out.print("Would you like to roll again? ");
-                    String reRollDice = reRoll.nextLine();
+                    String reRollDice = sc.nextLine();
 
-                    int choice = 0;
                     if (reRollDice.equalsIgnoreCase("yes")) {
 
                         Arrays.fill(heldDie, false);
-
                         rollNumber = rollNumber + 1; //increases roll count by 1. If i=1 then it is now the second roll, and if i=2
                         // then it is now the third roll.
 
                         int[] desiredHeldDice = new int[1];
                         desiredHeldDice[0] = -1; // Initialize array to loop state (resized later)
                         while (desiredHeldDice[0] == -1) {
-                            desiredHeldDice = promptIntList("Which dice would you like to set aside? (Separated by commas. Dice are ordered 1-5.)");
+                            desiredHeldDice = promptDiceList();
                             for (int h = 1; h < 6; h++) {
                                 if (inIntArr(h, desiredHeldDice)) {
                                     heldDie[h - 1] = true;
                                 }
                             }
                         }
-
-                        System.out.println("placeholder text for when choosing what category to score roll under.");
-                        choice = 0;
-
                         answeredCorrectly = true; //releases the user from the answeredCorrectly 'loop'
 
                     } else if (reRollDice.equalsIgnoreCase("no")) {
                         rollNumber = 3; //sets the roll count to 3,
                         answeredCorrectly = true; //releases the user from the answeredCorrectly 'loop'
-
-                        while (choice < 1 || choice > 13) {
-                            System.out.println("Please choose one of the following categories.");
-                            CategoryUse();
-
-                            choice = chose.nextInt();
-
-                            if (!rules.checkCategory(choice)) {
-                                rules.checkCategoryInput(dice, choice);
-                            } else {
-                                System.out.println("You have previously selected that category and currently have a score of ");
-                                choice = 0;
-                            }
-                            System.out.println();
-                            System.out.println();
-                            System.out.println();
-                            for (int x = 1; x <= 13; x++) {
-                                System.out.println("Category check for " + x + " is " + (rules.checkCategory(x)));
-                            }
-                            System.out.println();
-                            System.out.println();
-                            System.out.println();
-
-                        }
                     }
-                } while (!answeredCorrectly)/*||if(rollNumber<2)*/;}
+                } while (!answeredCorrectly);}
             else{rollNumber++;}
         }
-        System.out.println("placeholder text for when choosing what category to score roll under.");
-        System.out.println("1=Aces\n2=Twos\n3=Threes\n4=Fours\n5=Fives\n6=Sixes.");
+
+        rules.checkBonuses(dice); // Allow Yahtzee and Upper Bonuses to be scored
+        promptCategory(); // Prompt the user to choose a category and score that roll for them
+
+        //below line is supposed to call the instance of the Rules class that the current player has, and then
+        //calculate the score of the roll before starting the next player's turn.
+
+        int prevScore = score;
+        score = rules.getTotalScore();
+        System.out.println("Current Score: "+score+" (+"+(score-prevScore)+")"); // Print the score, and how many points the player gained during that turn
         System.out.println();
     }
 //need to call up the Rules class to calculate the score for the round
     // return getScore();
 
-    public void CategoryUse() {
+    private void listCategories() { // List available categories
         for (int index = 1; index <= 13; index++) {
-
-            if (!rules.checkCategory(index)) {
-
-                String display = (index) + "= ";
-                switch (index) {
-                    case 1:
-                        display += "Aces";
-                        break;
-                    case 2:
-                        display += "Twos";
-                        break;
-                    case 3:
-                        display += "Threes";
-                        break;
-                    case 4:
-                        display += "Fours";
-                        break;
-                    case 5:
-                        display += "Fives";
-                        break;
-                    case 6:
-                        display += "Sixes";
-                        break;
-                    case 7:
-                        display += "3OfAKind";
-                        break;
-                    case 8:
-                        display += "4OfAKind";
-                        break;
-                    case 9:
-                        display += "SmallStraight";
-                        break;
-                    case 10:
-                        display += "LargeStraight";
-                        break;
-                    case 11:
-                        display += "FullHouse";
-                        break;
-                    case 12:
-                        display += "Yahtzee";
-                        break;
-                    case 13:
-                        display += "Chance";
-                        break;
-                }
-                System.out.println(display);
+            if (!rules.checkCategory(index)) { // Show categories if they haven't been used yet
+                System.out.print(index+": "+getCategoryName(index)+"    "); // Spacing like this may need to be adjusted
             }
-        }}
+        }
+        System.out.println();
+    }
 
-    private static void printDice2(Die[] dice){
+    private static void printDice(Die[] dice){ // List the dice - graphical dice have been scrapped
         for(int i=0;i<5;i++){System.out.print(dice[i].getFaceValue()+" ");}
     }
 
-    private static void printDice(Die[] dice){ // Prints graphical representation of dice in a row
-
-        String[] printRows = new String[5]; // We need rows because we want the dice to be all in a row.
-        Arrays.fill(printRows,""); // Init. array
-        for(int i=0;i<5;i++) {
-            int faceVal = dice[i].getFaceValue(); // Stored so we don't need to keep calling the method
-            if(faceVal<1||faceVal>6){printRows[2]+="[!]";} // No graphical representation of the faceValue found
-
-            /* ___________________________________________________________________________________________________________
-              |In order to compress the code, I've thought of a way to make all of the dice in the same five lines.       |
-              |The presence of a dot on a point on the die can be expressed as a boolean value.                           |
-              |We can use this to our advantage by creating a method that returns either a space or a dot.                |
-              |Some dots on the die are shared between different faces, creating different conditions for them to appear. |
-               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ */
-
-            // - Text Dice Creation -
-            //printRows[0]+="---"+faceVal+"--- "; // DEBUG (it works!)
-            //printRows[0]+=" ______  ";
-            printRows[1]+=boolDot(faceVal!=1)+"   "+boolDot(faceVal>3)+"     ";
-            printRows[2]+=boolDot(faceVal==6)+" "+boolDot(faceVal%2==1)+" "+boolDot(faceVal==6)+"     ";
-            printRows[3]+=boolDot(faceVal>3)+"   "+boolDot(faceVal>1)+"     ";
-            //printRows[4]+=" ‾‾‾‾‾‾‾‾  ";
-        }
-        for(int i=0;i<5;i++){
-            System.out.println(printRows[i]);
-        }
-    }
-
-    private static String boolDot(boolean condition){ // If the condition is true, return a "dot" to be put on the die.
-        if(condition){return "●";} else{return " ";}
-    }
-
-    // promptInt also checks for invalid inputs
-    private static int promptInt(String prompt) throws InputMismatchException {
+    private static int promptCategoryID() throws InputMismatchException {
+        System.out.print("Please choose a category to score under. ");
         Scanner sc = new Scanner(System.in);
         int output;
         try{
@@ -251,8 +129,8 @@ public class Player {
         return output;
     }
 
-    private static int[] promptIntList(String prompt) throws InputMismatchException{
-        System.out.print(prompt+" ");
+    private static int[] promptDiceList() throws InputMismatchException{
+        System.out.print("Which dice would you like to set aside? (Separated by commas. Dice are ordered 1-5.) ");
         Scanner sc = new Scanner(System.in);
         String input = sc.nextLine();
         int items = 1;
@@ -265,7 +143,7 @@ public class Player {
         return output;
     }
 
-    private static String fetchParam(String str, int index){
+    private static String fetchParam(String str, int index){ // Get a set parameter from a formatted input, like "1,2,3"
         int currentIndex = 0;
         int lastDelimPos = -1;
         int i;
@@ -279,13 +157,57 @@ public class Player {
         return str.substring(lastDelimPos+1,i);
     }
 
-    private static boolean inIntArr(int query,int[] arr){
-        for(int i=0;i<arr.length;i++){
-            if(arr[i]==query){return true;}
+    private static boolean inIntArr(int query,int[] arr){ // Searches for an integer in an array
+        for (int anArr : arr) {
+            if (anArr == query) {
+                return true;
+            }
         }
         return false;
 
     }
 
+    private void promptCategory(){ // Prompts for AND scores in the category
+        int choice = 0;
+        boolean valid = false;
+        while (!valid) {
+            System.out.println();
+            listCategories();
+            choice = promptCategoryID();
+            valid = ((choice >= 1 && choice <= 13) && !rules.checkCategory(choice));
+            if (!valid) {System.out.println("The category you've picked has been used or is an invalid number.");}
+        }
+        rules.scoreCategory(dice,choice); // Score in the category
+        printScoreCard();
+    }
+
+    private static String getCategoryName(int categoryID){ // Returns a category's name
+        switch(categoryID){
+            case 1: return "Aces";
+            case 2: return "Twos";
+            case 3: return "Threes";
+            case 4: return "Fours";
+            case 5: return "Fives";
+            case 6: return "Sixes";
+            case 7: return "3 of a Kind";
+            case 8: return "4 of a Kind";
+            case 9: return "Small Straight";
+            case 10: return "Large Straight";
+            case 11: return "Full House";
+            case 12: return "Yahtzee";
+            case 13: return "Chance";
+        }
+        throw new IllegalArgumentException("Expected number 1-13, got "+categoryID);
+    }
+
+    private void printScoreCard(){  // Print the scores of previously scored categories
+        System.out.println("\n"+name+"'s Scorecard:");
+        boolean empty = true;
+        for (int x = 1; x <= 13; x++) {
+            if(rules.checkCategory(x)){System.out.print(getCategoryName(x)+": " + rules.getCategoryScore(x)+" pts.   ");empty=false;}
+        }
+        if(rules.getBonusPoints()>0){System.out.print("Bonus: "+rules.getBonusPoints()+" pts.");} // No need to factor into emptiness because a bonus on the first turn is impossible
+        if(empty){System.out.print("No scores yet.");}
+        System.out.println();
+    }
 }
-//added a comment at the end to make a new commit, even though I don't think it would be necessary to do this as there were no changes made to code since the last commit (On my side of things.)
